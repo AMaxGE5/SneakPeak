@@ -5037,6 +5037,105 @@ const NA_POOL_MID=[
   'n_spread','n_aimed','n_shotgun','n_gloveClap','n_crossfire','n_tickBurst','n_deathRain','n_move','n_laserRain'
 ];
 
+// Ataques de sombra con posición del narrator — sin redirects de función
+function doNarratorShadowAtk(id,cx,cy,hs){
+  const push=(bp)=>bossProjectiles.push(bp);
+  const tgt=()=>randTarget();
+  const tc=(p)=>({x:p.x+p.w/2,y:p.y-p.h/2});
+  if(id==='n_ink_spread'){
+    let t=tgt();let dx=t.x+t.w/2-cx,dy=t.y-t.h/2-cy,base=Math.atan2(dy,dx);
+    for(let a=-3;a<=3;a++) push({x:cx,y:cy,vx:Math.cos(base+a*0.20)*3.5*hs,vy:Math.sin(base+a*0.20)*3.5*hs,r:11,col:'#8040a0'});
+    setTimeout(()=>{if(gameState!=='playing')return;let nc=getNBossC();let t2=tgt();let dx2=t2.x+t2.w/2-nc.x,dy2=t2.y-t2.h/2-nc.y,base2=Math.atan2(dy2,dx2);for(let a=-2;a<=2;a++) push({x:nc.x,y:nc.y,vx:Math.cos(base2+a*0.22)*4*hs,vy:Math.sin(base2+a*0.22)*4*hs,r:10,col:'#602080'});},900);
+  }else if(id==='n_ink_aimed'){
+    for(let i=0;i<3;i++) setTimeout(()=>{if(gameState!=='playing')return;let nc=getNBossC();let t=tgt();let c=tc(t);let dx=c.x-nc.x,dy=c.y-nc.y,d=Math.sqrt(dx*dx+dy*dy)||1;push({x:nc.x,y:nc.y,vx:(dx/d)*4.5*hs,vy:(dy/d)*4.5*hs,r:11,col:'#a020d0'});},i*450);
+  }else if(id==='n_ink_homing'){
+    for(let i=0;i<2;i++) setTimeout(()=>{if(gameState!=='playing')return;let nc=getNBossC();let t=tgt();push({x:nc.x,y:nc.y,vx:(Math.random()-0.5)*2,vy:-1.5,r:13,col:'#cc40ff',homing:true,homingTarget:t});},i*700);
+  }else if(id==='n_ink_burst'){
+    let cnt=12;for(let i=0;i<cnt;i++) push({x:cx,y:cy,vx:Math.cos(i/cnt*Math.PI*2)*3.8*hs,vy:Math.sin(i/cnt*Math.PI*2)*3.8*hs,r:9,col:'#8020c0'});
+    setTimeout(()=>{if(gameState!=='playing')return;let nc=getNBossC();for(let i=0;i<9;i++) push({x:nc.x,y:nc.y,vx:Math.cos(i/9*Math.PI*2+Math.PI/9)*2.8*hs,vy:Math.sin(i/9*Math.PI*2+Math.PI/9)*2.8*hs,r:8,col:'#aa30ff'});},800);
+  }else if(id==='n_ink_shotgun'){
+    let t=tgt();let dx=t.x+t.w/2-cx,dy=t.y-t.h/2-cy,base=Math.atan2(dy,dx);
+    for(let i=-2;i<=2;i++) push({x:cx,y:cy,vx:Math.cos(base+i*0.16)*(3.5+Math.random())*hs,vy:Math.sin(base+i*0.16)*(3.5+Math.random())*hs,r:8,col:'#9030d0'});
+  }else if(id==='n_ink_laserRain'){
+    for(let i=0;i<5;i++) setTimeout(()=>{if(gameState!=='playing')return;let t=tgt();push({x:t.x+t.w/2+(Math.random()-0.5)*80,y:-20,vx:0,vy:5*hs,r:12,col:'#cc60ff'});},i*250);
+  }else if(id==='n_ink_groundWave'){
+    let t=tgt();let dir=t.x+t.w/2<cx?-1:1;
+    push({x:cx,y:FLOOR-13,vx:dir*5*hs,vy:0,r:14,col:'#8030c0',floorSlide:true});
+    push({x:cx,y:FLOOR-13,vx:-dir*4*hs,vy:0,r:12,col:'#6020a0',floorSlide:true});
+  }else if(id==='n_ink_spiral'){
+    let cnt=8,base=frameCount*0.1;
+    for(let i=0;i<cnt;i++) setTimeout(()=>{if(gameState!=='playing')return;let nc=getNBossC();let ang=base+i/cnt*Math.PI*2;push({x:nc.x,y:nc.y,vx:Math.cos(ang)*3.2*hs,vy:Math.sin(ang)*3.2*hs,r:9,col:'#7020b0'});},i*80);
+  }
+  // Tempestina shadows
+  else if(id==='n_t_hailBurst'){
+    let cnt=8;for(let i=0;i<cnt;i++) push({x:cx,y:cy,vx:Math.cos(i/cnt*Math.PI*2)*4*hs,vy:Math.sin(i/cnt*Math.PI*2)*4*hs,r:10,col:'#2060b0'});
+    setTimeout(()=>{if(gameState!=='playing')return;let nc=getNBossC();let cnt2=5;for(let i=0;i<cnt2;i++){let t=tgt();let c=tc(t);let dx=c.x-nc.x,dy=c.y-nc.y,d=Math.sqrt(dx*dx+dy*dy)||1;push({x:nc.x,y:nc.y,vx:(dx/d)*5*hs,vy:(dy/d)*5*hs,r:9,col:'#4080d0'});}},600);
+  }else if(id==='n_t_windGust'){
+    let cnt=6,t=tgt();let dx=t.x+t.w/2-cx,dy=t.y-t.h/2-cy,base=Math.atan2(dy,dx);
+    for(let i=0;i<cnt;i++) setTimeout(()=>{if(gameState!=='playing')return;let nc=getNBossC();push({x:nc.x,y:nc.y,vx:Math.cos(base+i*0.08)*4.5*hs,vy:Math.sin(base+i*0.08)*4.5*hs,r:10,col:'#40a0e0'});},i*120);
+  }else if(id==='n_t_lightning'){
+    // Lightning warning + bolt
+    let t=tgt();let lx=t.x+t.w/2+(Math.random()-0.5)*60;
+    tLightningWarnings.push({x:lx,timer:70});
+    setTimeout(()=>{if(gameState!=='playing')return;push({x:lx,y:0,vx:0,vy:20,r:12,col:'#ffff40',isBolt:true});},70*16.7);
+  }else if(id==='n_t_thunderOrbs'){
+    let cnt=5;for(let i=0;i<cnt;i++) setTimeout(()=>{if(gameState!=='playing')return;let nc=getNBossC();let t=tgt();let c=tc(t);let dx=c.x-nc.x,dy=c.y-nc.y,d=Math.sqrt(dx*dx+dy*dy)||1;push({x:nc.x,y:nc.y,vx:(dx/d)*3.5*hs,vy:(dy/d)*3.5*hs,r:12,col:'#6080e0',homing:true,homingTarget:t});},i*300);
+  }else if(id==='n_t_rainCurtain'){
+    let cnt=7,spd=5*hs;for(let i=0;i<cnt;i++) setTimeout(()=>{if(gameState!=='playing')return;push({x:80+Math.random()*(W-160),y:-15,vx:(Math.random()-0.5)*1.5,vy:spd,r:10,col:'#4090c0',grav:0.02});},i*200);
+  }else if(id==='n_t_iceSlide'){
+    let side=Math.random()<0.5?1:-1;
+    for(let i=0;i<3;i++) push({x:side>0?-10:W+10,y:FLOOR-30-i*40,vx:side>0?5.5*hs:-5.5*hs,vy:0,r:11,col:'#60d0ff'});
+  }else if(id==='n_t_tornado'){
+    let side=Math.random()<0.5?1:-1;
+    push({x:side>0?-20:W+20,y:FLOOR-30,vx:side>0?4.5*hs:-4.5*hs,vy:0,r:26,col:'#6060d0',tornado:true});
+  }
+  // Kronos shadows
+  else if(id==='n_k_gearWall'){
+    kGears=[{cx:W/2-130,cy:FLOOR-130,r:50,angle:0,speed:0.04*hs,hp:3},{cx:W/2+130,cy:FLOOR-130,r:50,angle:Math.PI,speed:-0.05*hs,hp:3}];
+  }else if(id==='n_k_clockSweep'){
+    kClockHands=[{cx:W/2,cy:FLOOR,len:W*0.6,angle:-Math.PI,speed:0.022*hs,w:18,life:180}];
+  }else if(id==='n_k_tickBurst'){
+    let cnt=10;for(let i=0;i<cnt;i++) push({x:cx,y:cy,vx:Math.cos(i/cnt*Math.PI*2)*4.5*hs,vy:Math.sin(i/cnt*Math.PI*2)*4.5*hs,r:10,col:'#d04020'});
+    setTimeout(()=>{if(gameState!=='playing')return;let nc=getNBossC();for(let i=0;i<6;i++){let ang=i/6*Math.PI*2+Math.PI/6;push({x:nc.x,y:nc.y,vx:Math.cos(ang)*3*hs,vy:Math.sin(ang)*3*hs,r:9,col:'#e06030'});}},700);
+  }else if(id==='n_k_pendulum'){
+    kPendulum={cx:W/2,cy:-20,len:340,angle:-1.1,angV:0.015*hs,bladeW:80,bladeH:24,life:220};
+  }else if(id==='n_k_dualSweep'){
+    kClockHands=[{cx:0,cy:FLOOR,len:W*0.7,angle:-Math.PI*0.6,speed:0.025*hs,w:14,life:180},{cx:W,cy:FLOOR,len:W*0.7,angle:-Math.PI*0.4,speed:-0.025*hs,w:14,life:180}];
+  }else if(id==='n_k_spiralGears'){
+    let cnt=3;for(let i=0;i<cnt;i++){let ang=i/cnt*Math.PI*2;kGears.push({cx:cx+Math.cos(ang)*60,cy:cy+Math.sin(ang)*60,r:32,angle:ang,speed:0.06*hs,orbitAng:ang,orbitR:60,orbitSpd:0.03*hs,hp:2,spiral:true});}
+  }
+}
+
+function drawNarratorProjectiles(){
+  for(let bp of bossProjectiles){
+    if(bp.dead)continue;
+    ctx.save();
+    if(bp.tornado){
+      ctx.globalAlpha=0.75;ctx.strokeStyle='#6040c0';ctx.lineWidth=3;
+      ctx.beginPath();ctx.ellipse(bp.x,bp.y,bp.r,bp.r*2.2,0,0,Math.PI*2);ctx.stroke();
+      ctx.beginPath();ctx.ellipse(bp.x,bp.y,bp.r*0.6,bp.r*1.4,Math.sin(frameCount*0.15)*0.3,0,Math.PI*2);ctx.stroke();
+      ctx.globalAlpha=1;ctx.restore();continue;
+    }
+    ctx.translate(bp.x,bp.y);
+    let ang=Math.atan2(bp.vy||0,bp.vx||0);ctx.rotate(ang);
+    let col=bp.col||'#cc40ff';
+    ctx.fillStyle=col;
+    ctx.beginPath();ctx.ellipse(0,0,bp.r*1.3,bp.r*0.7,0,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='rgba(0,0,0,0.6)';ctx.lineWidth=2;ctx.stroke();
+    ctx.shadowColor=col;ctx.shadowBlur=8;
+    ctx.strokeStyle=col+'55';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.ellipse(0,0,bp.r*1.6,bp.r*0.9,0,0,Math.PI*2);ctx.stroke();
+    ctx.shadowBlur=0;
+    ctx.restore();
+  }
+  // Kronos visual elements (gears, pendulum, hands) when in stage 3
+  if(nStage===3){
+    for(let g of kGears){ctx.save();ctx.translate(g.cx,g.cy);ctx.rotate(g.angle);let teeth=Math.round(g.r/8);ctx.fillStyle='rgba(40,20,0,0.2)';ctx.strokeStyle='#6040a0';ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,0,g.r*0.7,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.beginPath();for(let t=0;t<teeth;t++){let a0=t/teeth*Math.PI*2,a1=(t+0.4)/teeth*Math.PI*2;ctx.moveTo(Math.cos(a0)*g.r,Math.sin(a0)*g.r);ctx.lineTo(Math.cos(a0)*(g.r+12),Math.sin(a0)*(g.r+12));ctx.lineTo(Math.cos(a1)*(g.r+12),Math.sin(a1)*(g.r+12));ctx.lineTo(Math.cos(a1)*g.r,Math.sin(a1)*g.r);}ctx.stroke();ctx.restore();}
+    if(kPendulum){let pd=kPendulum;let tipX=pd.cx+Math.sin(pd.angle)*pd.len;let tipY=pd.cy+Math.cos(pd.angle)*pd.len;ctx.save();ctx.strokeStyle='#5030a0';ctx.lineWidth=8;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(pd.cx,pd.cy);ctx.lineTo(tipX,tipY);ctx.stroke();ctx.translate(tipX,tipY);ctx.rotate(pd.angle);ctx.fillStyle='#8040c0';ctx.strokeStyle='#000';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(0,0,pd.bladeW/2,pd.bladeH/2,0,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.restore();}
+    for(let ch of kClockHands){ctx.save();ctx.translate(ch.cx,ch.cy);ctx.globalAlpha=Math.min(1,ch.life/20)*0.9;ctx.strokeStyle='#a040e0';ctx.lineWidth=ch.w;ctx.lineCap='round';ctx.shadowColor='#8020c0';ctx.shadowBlur=18;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.cos(ch.angle)*ch.len,Math.sin(ch.angle)*ch.len);ctx.stroke();ctx.shadowBlur=0;ctx.restore();}
+  }
+}
+
 function doNarratorAtk(p){
   let nc=getNBossC(),cx=nc.x,cy=nc.y;
   const hs=1.1; // fixed hard
@@ -5160,14 +5259,13 @@ function updateNarrator(){
       nAttackT=200;
       let tgt=randTarget();let tc=targetCenter(tgt);let nc=getNBossC();
       let dx=tc.x-nc.x,dy=tc.y-nc.y,d=Math.sqrt(dx*dx+dy*dy)||1;
-      bossProjectiles.push({x:nc.x,y:nc.y,vx:(dx/d)*2.2,vy:(dy/d)*2.2,r:14,col:'#222244'});
+      bossProjectiles.push({x:nc.x,y:nc.y,vx:(dx/d)*2.2,vy:(dy/d)*2.2,r:14,col:'#4030c0'});
     }
     // Update projectiles manually for stage 0
     for(let i=bossProjectiles.length-1;i>=0;i--){
       let bp=bossProjectiles[i];bp.x+=bp.vx;bp.y+=bp.vy;
-      if(bp.x<-30||bp.x>W+30||bp.y>H+30)bossProjectiles.splice(i,1);
+      if(bp.x<-30||bp.x>W+30||bp.y>H+30||bp.y<-30)bossProjectiles.splice(i,1);
     }
-    // Stage 0 ends when its HP hits 0 (handled in checkCollisionsNarrator)
     return;
   }
 
@@ -5176,45 +5274,50 @@ function updateNarrator(){
     nAttackT--;
     if(nAttackT<=0&&!nSpot1){
       nAttackT=nStage===1?D(160,130):nStage===2?D(145,118):D(130,105);
-      // Use the appropriate boss's P1+P2 attacks
+      let nc=getNBossC();let cx=nc.x,cy=nc.y;
+      const hs=1.1;
       if(nStage===1){
-        let pool=['spread','spiral','aimed','homing','burst','shotgun','laserRain','groundWave','spiralAimed'];
+        // Inkboss P1+P2 attacks — using narrator position directly
+        let pool=['n_ink_spread','n_ink_aimed','n_ink_homing','n_ink_burst','n_ink_shotgun','n_ink_laserRain','n_ink_groundWave','n_ink_spiral'];
         let atk=pool[Math.floor(Math.random()*pool.length)];
-        // Temporarily redirect getBossC to narrator
-        let _orig=getBossC;getBossC=getNBossC;
-        doBossAtk(atk);
-        getBossC=_orig;
+        doNarratorShadowAtk(atk,cx,cy,hs);
       }else if(nStage===2){
-        let pool=[...TP1A,...TP2A].map(a=>a.id);
-        let id=pool[Math.floor(Math.random()*pool.length)];
-        let _orig=getTBossC;getTBossC=getNBossC;
-        doTempAtk(id);
-        getTBossC=_orig;
-      }else{
-        // Stage 3: Kronos P1+P2, no reverseZone
-        let pool=[...KP1A,...KP2A].filter(a=>a!=='reverseZone');
+        // Tempestina P1+P2 attacks
+        let pool=['n_t_hailBurst','n_t_windGust','n_t_lightning','n_t_thunderOrbs','n_t_rainCurtain','n_t_iceSlide','n_t_tornado'];
         let atk=pool[Math.floor(Math.random()*pool.length)];
-        let _orig=getKBossC;getKBossC=getNBossC;
-        doKronosAtk(atk);
-        getKBossC=_orig;
+        doNarratorShadowAtk(atk,cx,cy,hs);
+      }else{
+        // Kronos P1+P2 attacks — no reverseZone, no wallBounce bullet reversal
+        let pool=['n_k_gearWall','n_k_clockSweep','n_k_tickBurst','n_k_pendulum','n_k_dualSweep','n_k_spiralGears'];
+        let atk=pool[Math.floor(Math.random()*pool.length)];
+        doNarratorShadowAtk(atk,cx,cy,hs);
       }
     }
     // Kronos elements update (stage 3)
     if(nStage===3){
-      if(kPendulum){kPendulum.life--;kPendulum.angle+=kPendulum.angV;if(Math.abs(kPendulum.angle)>1.15)kPendulum.angV=-kPendulum.angV;if(kPendulum.life<=0)kPendulum=null;}
-      for(let h of kClockHands){h.angle+=h.speed;h.life--;} kClockHands=kClockHands.filter(h=>h.life>0);
+      if(kPendulum){kPendulum.life--;kPendulum.angle+=kPendulum.angV;if(Math.abs(kPendulum.angle)>1.15)kPendulum.angV=-kPendulum.angV;
+        let tipX=kPendulum.cx+Math.sin(kPendulum.angle)*kPendulum.len;
+        let tipY=kPendulum.cy+Math.cos(kPendulum.angle)*kPendulum.len;
+        // Pendulum hit check
+        const chkPend=(p,ownInvT,setInv)=>{if(p.dead||ownInvT>0)return;let dx=tipX-(p.x+p.w/2),dy=tipY-(p.y-p.h/2);if(Math.sqrt(dx*dx+dy*dy)<kPendulum.bladeW/2+p.w/2){p.hp--;setInv(90);p.shieldT=100;triggerShake(6,10);playSFX('hit');spawnParts(p.x+p.w/2,p.y-p.h/2,'#e84040',8,4,25);if(p.hp<=0){p.dead=true;spawnGhost(p);if(!p2Active||player2.dead){if(mpMode&&mpIsHost)checkAllDeadMP();else{stopMusic();setTimeout(()=>{showScreen('gameOver');gameState='end';},1500);}}}}};
+        chkPend(player,invTimer,(v)=>{invTimer=v;});
+        if(p2Active&&!player2.dead)chkPend(player2,player2.invTimer,(v)=>{player2.invTimer=v;});
+        if(kPendulum.life<=0)kPendulum=null;
+      }
+      for(let h of kClockHands){h.angle+=h.speed;h.life--;}
+      kClockHands=kClockHands.filter(h=>h.life>0);
+      for(let g of kGears){g.angle+=g.speed||0.04;}
     }
     // Update projectiles
     for(let i=bossProjectiles.length-1;i>=0;i--){
       let bp=bossProjectiles[i];
       if(bp.dead){bossProjectiles.splice(i,1);continue;}
-      // Homing
       if(bp.homing&&bp.homingTarget){let tgt=bp.homingTarget;let dx=tgt.x+tgt.w/2-bp.x,dy=tgt.y-tgt.h/2-bp.y,d=Math.sqrt(dx*dx+dy*dy)||1;bp.vx+=(dx/d)*0.18;bp.vy+=(dy/d)*0.18;let s=Math.sqrt(bp.vx*bp.vx+bp.vy*bp.vy);if(s>5.5){bp.vx=bp.vx/s*5.5;bp.vy=bp.vy/s*5.5;}}
       if(bp.grav)bp.vy+=bp.grav;
       if(bp.floorSlide){bp.x+=bp.vx;if(bp.x<-bp.r*2||bp.x>W+bp.r*2)bossProjectiles.splice(i,1);continue;}
       bp.x+=bp.vx;bp.y+=bp.vy;
-      if(bp.wallBounce){if(bp.x<bp.r){bp.x=bp.r;bp.vx=Math.abs(bp.vx);}if(bp.x>W-bp.r){bp.x=W-bp.r;bp.vx=-Math.abs(bp.vx);}}
-      if(bp.x<-50||bp.x>W+50||bp.y>H+50||bp.y<-50)bossProjectiles.splice(i,1);
+      if(bp.wallBounce){if((bp.wallBounces||0)<3){if(bp.x<bp.r){bp.x=bp.r;bp.vx=Math.abs(bp.vx);bp.wallBounces=(bp.wallBounces||0)+1;}if(bp.x>W-bp.r){bp.x=W-bp.r;bp.vx=-Math.abs(bp.vx);bp.wallBounces=(bp.wallBounces||0)+1;}}else bp.dead=true;}
+      if(bp.x<-60||bp.x>W+60||bp.y>H+60||bp.y<-60)bossProjectiles.splice(i,1);
     }
     return;
   }
@@ -5260,6 +5363,12 @@ function advanceNarratorStage(){
   startNarratorCurtain(()=>{
     nStage=next;
     nInvT=120;
+    // Curar jugadores al derrotar cada jefe sombra
+    const healAmt=2;
+    const healP=(p)=>{if(!p.dead){p.hp=Math.min(p.maxHp,p.hp+healAmt);spawnParts(p.x+p.w/2,p.y-p.h/2,'#40ff80',8,4,20);}};
+    healP(player);if(p2Active)healP(player2);
+    if(mpMode&&mpIsHost) for(let cp of mpPlayers){if(cp)healP(cp);}
+    playSFX('heal');
     if(next===1){nShadowType='ink';nBoss.hp=N_SHADOW_HP;nBoss.maxHp=N_SHADOW_HP;nBoss.x=120;nBoss.y=FLOOR-200;_syncNarratorMusic(1);}
     else if(next===2){nShadowType='temp';nBoss.hp=N_SHADOW_HP;nBoss.maxHp=N_SHADOW_HP;nBoss.x=W-260;nBoss.y=FLOOR-200;_syncNarratorMusic(2);
       let el=document.getElementById('phaseAnnounce');el.style.color='#60d8ff';el.textContent='¡SOMBRA DE LA TORMENTA!';el.style.display='block';setTimeout(()=>el.style.display='none',2500);}
@@ -5426,50 +5535,79 @@ function drawNarrator(){
     ctx.shadowBlur=0;
   }
   else if(nStage>=1&&nStage<=3){
-    // Shadow versions — dark tinted with glowing blue eyes
-    let shadowAlpha=0.88;
-    ctx.globalAlpha=shadowAlpha;
+    // Shadow versions — dark tinted with glowing eyes
+    ctx.globalAlpha=0.88;
     if(nStage===1){
-      // Inkboss shadow — same shape but all dark purple-black
+      // Inkboss shadow — fat round body, short stubby legs, tall top hat
       ctx.fillStyle='#0a0020';
-      // Body bulk
-      ctx.beginPath();ctx.ellipse(cx,ny+nh*0.55,55,65,0,0,Math.PI*2);ctx.fill();
-      // Head
-      ctx.beginPath();ctx.ellipse(cx,ny+nh*0.22,38,42,0,0,Math.PI*2);ctx.fill();
-      // Top hat
-      ctx.beginPath();ctx.ellipse(cx,ny+nh*0.08,44,9,0,0,Math.PI*2);ctx.fill();
-      ctx.fillRect(cx-28,ny-55,56,nh*0.14+55);
-      // Glowing eyes
+      // Tentacle legs (3 each side)
+      for(let s=-1;s<=1;s+=1){
+        ctx.beginPath();ctx.moveTo(cx+s*20,ny+nh*0.85);
+        ctx.quadraticCurveTo(cx+s*35,ny+nh*0.95,cx+s*45,ny+nh);ctx.lineWidth=10;ctx.strokeStyle='#0a0020';ctx.stroke();
+      }
+      // Round fat body
+      ctx.beginPath();ctx.ellipse(cx,ny+nh*0.58,58,55,0,0,Math.PI*2);ctx.fill();
+      // Neck / head joint
+      ctx.beginPath();ctx.ellipse(cx,ny+nh*0.22,32,24,0,0,Math.PI*2);ctx.fill();
+      // Head — big and round
+      ctx.beginPath();ctx.ellipse(cx,ny+nh*0.18,42,40,0,0,Math.PI*2);ctx.fill();
+      // Hat brim
+      ctx.beginPath();ctx.ellipse(cx,ny+nh*0.04,52,10,0,0,Math.PI*2);ctx.fill();
+      // Hat body tall
+      ctx.fillRect(cx-34,ny-70,68,nh*0.1+70);
+      // Hat top cap
+      ctx.beginPath();ctx.ellipse(cx,ny-70,34,8,0,0,Math.PI*2);ctx.fill();
+      // Monocle suggestion
+      ctx.strokeStyle='#1a1040';ctx.lineWidth=3;
+      ctx.beginPath();ctx.arc(cx+15,ny+nh*0.17,12,0,Math.PI*2);ctx.stroke();
+      // Eyes
       ctx.globalAlpha=1;
-      ctx.fillStyle='#60a0ff';ctx.shadowColor='#60a0ff';ctx.shadowBlur=16;
-      ctx.beginPath();ctx.ellipse(cx-14,ny+nh*0.2,7,6,0,0,Math.PI*2);ctx.fill();
-      ctx.beginPath();ctx.ellipse(cx+14,ny+nh*0.2,7,6,0,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#60a0ff';ctx.shadowColor='#60a0ff';ctx.shadowBlur=18;
+      ctx.beginPath();ctx.ellipse(cx-14,ny+nh*0.17,7,6,0,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.ellipse(cx+14,ny+nh*0.17,7,6,0,0,Math.PI*2);ctx.fill();
       ctx.shadowBlur=0;
     }else if(nStage===2){
-      // Tempestina shadow — witch silhouette
+      // Tempestina shadow — tall witch with pointy hat and flowing robe
       ctx.fillStyle='#000820';
-      ctx.beginPath();ctx.ellipse(cx,ny+nh*0.5,50,70,0,0,Math.PI*2);ctx.fill();
-      ctx.beginPath();ctx.ellipse(cx,ny+nh*0.2,32,36,0,0,Math.PI*2);ctx.fill();
+      // Flowing robe base
+      ctx.beginPath();ctx.moveTo(cx-55,ny+nh);ctx.quadraticCurveTo(cx-50,ny+nh*0.5,cx-30,ny+nh*0.35);ctx.lineTo(cx+30,ny+nh*0.35);ctx.quadraticCurveTo(cx+50,ny+nh*0.5,cx+55,ny+nh);ctx.closePath();ctx.fill();
+      // Body
+      ctx.beginPath();ctx.ellipse(cx,ny+nh*0.45,28,38,0,0,Math.PI*2);ctx.fill();
+      // Head
+      ctx.beginPath();ctx.ellipse(cx,ny+nh*0.22,26,28,0,0,Math.PI*2);ctx.fill();
       // Pointy hat
-      ctx.beginPath();ctx.moveTo(cx,ny-60);ctx.lineTo(cx-40,ny+nh*0.08);ctx.lineTo(cx+40,ny+nh*0.08);ctx.closePath();ctx.fill();
-      ctx.beginPath();ctx.ellipse(cx,ny+nh*0.08,48,10,0,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.moveTo(cx,ny-70);ctx.lineTo(cx-42,ny+nh*0.1);ctx.lineTo(cx+42,ny+nh*0.1);ctx.closePath();ctx.fill();
+      // Hat brim
+      ctx.beginPath();ctx.ellipse(cx,ny+nh*0.1,50,10,0,0,Math.PI*2);ctx.fill();
+      // Outstretched arms (casting)
+      ctx.strokeStyle='#000820';ctx.lineWidth=12;ctx.lineCap='round';
+      ctx.beginPath();ctx.moveTo(cx-24,ny+nh*0.35);ctx.quadraticCurveTo(cx-55,ny+nh*0.3,cx-70,ny+nh*0.2);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(cx+24,ny+nh*0.35);ctx.quadraticCurveTo(cx+55,ny+nh*0.3,cx+70,ny+nh*0.2);ctx.stroke();
       ctx.globalAlpha=1;
-      ctx.fillStyle='#40c8ff';ctx.shadowColor='#40c8ff';ctx.shadowBlur=16;
-      ctx.beginPath();ctx.ellipse(cx-12,ny+nh*0.19,6,5,0,0,Math.PI*2);ctx.fill();
-      ctx.beginPath();ctx.ellipse(cx+12,ny+nh*0.19,6,5,0,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#40c8ff';ctx.shadowColor='#40c8ff';ctx.shadowBlur=18;
+      ctx.beginPath();ctx.ellipse(cx-11,ny+nh*0.2,6,5,0,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.ellipse(cx+11,ny+nh*0.2,6,5,0,0,Math.PI*2);ctx.fill();
       ctx.shadowBlur=0;
     }else{
-      // Kronos shadow — clockwork entity
+      // Kronos shadow — clockwork orb creature with gear halo
       ctx.fillStyle='#0a0800';
-      ctx.beginPath();ctx.ellipse(cx,ny+nh*0.5,52,65,0,0,Math.PI*2);ctx.fill();
-      ctx.beginPath();ctx.ellipse(cx,ny+nh*0.2,35,38,0,0,Math.PI*2);ctx.fill();
-      // Gear halo suggestion
-      ctx.strokeStyle='#1a1000';ctx.lineWidth=6;
-      ctx.beginPath();ctx.arc(cx,ny+nh*0.2,50,0,Math.PI*2);ctx.stroke();
+      // Main body sphere
+      ctx.beginPath();ctx.ellipse(cx,ny+nh*0.5,55,55,0,0,Math.PI*2);ctx.fill();
+      // Inner core
+      ctx.fillStyle='#080600';
+      ctx.beginPath();ctx.ellipse(cx,ny+nh*0.5,35,35,0,0,Math.PI*2);ctx.fill();
+      // Gear ring (8 teeth)
+      ctx.strokeStyle='#1a1200';ctx.lineWidth=8;
+      ctx.beginPath();ctx.arc(cx,ny+nh*0.5,68,0,Math.PI*2);ctx.stroke();
+      ctx.strokeStyle='#151000';ctx.lineWidth=6;
+      for(let t=0;t<8;t++){let ang=t/8*Math.PI*2;let r1=68,r2=82;ctx.beginPath();ctx.moveTo(cx+Math.cos(ang)*r1,ny+nh*0.5+Math.sin(ang)*r1);ctx.lineTo(cx+Math.cos(ang)*r2,ny+nh*0.5+Math.sin(ang)*r2);ctx.stroke();}
+      // Head orb top
+      ctx.fillStyle='#0a0800';
+      ctx.beginPath();ctx.ellipse(cx,ny+nh*0.14,30,30,0,0,Math.PI*2);ctx.fill();
       ctx.globalAlpha=1;
-      ctx.fillStyle='#ffd040';ctx.shadowColor='#ffd040';ctx.shadowBlur=16;
-      ctx.beginPath();ctx.ellipse(cx-13,ny+nh*0.19,6,5,0,0,Math.PI*2);ctx.fill();
-      ctx.beginPath();ctx.ellipse(cx+13,ny+nh*0.19,6,5,0,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#ffd040';ctx.shadowColor='#ffd040';ctx.shadowBlur=18;
+      ctx.beginPath();ctx.ellipse(cx-12,ny+nh*0.12,6,5,0,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.ellipse(cx+12,ny+nh*0.12,6,5,0,0,Math.PI*2);ctx.fill();
       ctx.shadowBlur=0;
     }
   }
@@ -7121,7 +7259,7 @@ function gameLoop(){
       drawBackgroundKronos();drawParts();drawKronos();drawMinions();drawBullets();if(mpMode&&mpIsHost)drawMPAllPlayers();else drawPlayer();drawGhosts();drawSpecials();drawHUDKronos();
       if(gameState==='playing'){if(mpMode)mpUpdateHost();else updatePlayer();updateKronos();updateMinions();updateParts();checkCollisions();updateGhosts();}
     } else if(selectedBoss==='narrator'){
-      drawBackgroundNarrator();drawNarratorCurtain();drawParts();drawNarrator();drawMinions();drawBullets();if(mpMode&&mpIsHost)drawMPAllPlayers();else drawPlayer();drawGhosts();drawSpecials();drawHUDNarrator();drawPost();
+      drawBackgroundNarrator();drawNarratorCurtain();drawParts();drawNarrator();drawNarratorProjectiles();drawMinions();drawBullets();if(mpMode&&mpIsHost)drawMPAllPlayers();else drawPlayer();drawGhosts();drawSpecials();drawHUDNarrator();drawPost();
       if(gameState==='playing'){if(mpMode)mpUpdateHost();else updatePlayer();updateNarrator();updateMinions();updateParts();checkCollisions();updateGhosts();}
     } else {
       drawBackground();drawParts();drawBoss();drawMinions();drawBullets();if(mpMode&&mpIsHost)drawMPAllPlayers();else drawPlayer();drawGhosts();drawSpecials();drawHUD();drawPost();
