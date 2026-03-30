@@ -495,8 +495,8 @@ function spawnP2OverWorld(){
 // ╚══════════════════════════════════════════════════════╝
 const WEAPONS={
   basic:  {name:'PISTOLA',    icon:'🔫', dmg:1.0,  speed:15, count:1, maxRange:9999, r:7,  col:null, shootCD:12, desc:'Arma estándar · Daño normal'},
-  homing: {name:'TELEDIRIGIDA',icon:'🎯',dmg:0.35, speed:8,  count:1, maxRange:9999, r:9,  col:'#ff60ff', shootCD:18, desc:'Sigue al jefe · Se destruye al impactar'},
-  shotgun:{name:'ESCOPETA',   icon:'💥', dmg:1.68, speed:10, count:5, maxRange:161,  r:6,  col:'#ffa040', shootCD:22, desc:'Corto alcance · Mucho daño · 5 perdigones'},
+  homing: {name:'TELEDIRIGIDA',icon:'🎯',dmg:0.35, speed:5.6,count:1, maxRange:9999, r:9,  col:'#ff60ff', shootCD:18, desc:'Sigue al jefe · Se destruye al impactar'},
+  shotgun:{name:'ESCOPETA',   icon:'💥', dmg:1.68, speed:10, count:10,maxRange:161,  r:6,  col:'#ffa040', shootCD:22, desc:'Corto alcance · Mucho daño · 10 perdigones'},
 };
 // Weapon slots per player: [slot0, slot1]
 let p1Slots=['basic','homing'];
@@ -3934,6 +3934,8 @@ function updateIntro(){
 function drawIntro(){
   // Draw the background and boss (entering from off-screen)
   if(selectedBoss==='tempestina') drawBackgroundTemp();
+  else if(selectedBoss==='kronos') drawBackgroundKronos();
+  else if(selectedBoss==='narrator') drawBackgroundNarrator();
   else drawBackground();
 
   // Boss entrance animation: slide in from side during first half
@@ -3950,6 +3952,17 @@ function drawIntro(){
     tBoss.bobOff=Math.sin(frameCount*0.1)*6;
     drawTempestina();
     tBoss.y=targetY; // restore
+  } else if(selectedBoss==='kronos'){
+    let targetX=kBoss.x;
+    let startX=W+kBoss.w+40;
+    kBoss.x=startX+(targetX-startX)*ease;
+    kBoss.bobOff=Math.sin(frameCount*0.1)*8;
+    drawKronos();
+    kBoss.x=targetX;
+  } else if(selectedBoss==='narrator'){
+    ctx.globalAlpha=ease;
+    drawNarrator();
+    ctx.globalAlpha=1;
   } else {
     // Inkboss enters from right
     let targetX=boss.x;
@@ -5509,6 +5522,13 @@ function updateNarrator(){
         else doNarratorShadowAtk(atk,cx,cy,hs);
       }
     }
+    // Stage 2: actualizar warnings de rayo para que desaparezcan tras disparar
+    if(nStage===2){
+      for(let i=tLightningWarnings.length-1;i>=0;i--){
+        let lw=tLightningWarnings[i];lw.timer--;
+        if(lw.timer<=0)tLightningWarnings.splice(i,1);
+      }
+    }
     // Kronos elements update (stage 3) — full functionality
     if(nStage===3){
       if(kPendulum){kPendulum.life--;kPendulum.angle+=kPendulum.angV;if(Math.abs(kPendulum.angle)>1.15)kPendulum.angV=-kPendulum.angV;
@@ -5965,7 +5985,7 @@ function drawNarrator(){
     } else if(nStage===2){
       // Sombra de Tormenta = Tempestina fase 1 — tamaño original: w=150 h=200
       let savedT={x:tBoss.x,y:tBoss.y,bobOff:tBoss.bobOff,w:tBoss.w,h:tBoss.h};
-      let bw=150,bh=200;
+      let bw=180,bh=180;
       tBoss.x=nBoss.x+nBoss.w/2-bw/2;
       tBoss.y=nBoss.y+nBoss.bobOff+nBoss.h/2-bh/2;
       tBoss.bobOff=0; tBoss.w=bw; tBoss.h=bh;
@@ -6772,7 +6792,7 @@ function triggerVictoryScreen(bossId){
   // En MP: mostrar el mismo winScreen HTML para host y notificar a clientes
   if(mpMode&&mpIsHost){
     let sub=document.getElementById('winScreen').querySelector('.endSub');
-    if(sub) sub.textContent=bossId==='tempestina'?'¡TEMPESTINA FUE DERROTADA!':bossId==='kronos'?'¡KRONOS FUE DETENIDO!':'¡EL INKBOSS FUE DESTRUIDO!';
+    if(sub) sub.textContent=bossId==='tempestina'?'¡TEMPESTINA FUE DERROTADA!':bossId==='kronos'?'¡KRONOS FUE DETENIDO!':bossId==='narrator'?'¡NARRATOR FUE REVELADO!':'¡EL INKBOSS FUE DESTRUIDO!';
     victoryScreen=null; // no usar la pantalla canvas
     showScreen('winScreen');
     mpBroadcast({type:'winMP',bossId});
@@ -7418,7 +7438,7 @@ function mpHandleVoteMsg(d){
   if(d.type==='winMP'){
     stopMusic();
     let sub=document.getElementById('winScreen').querySelector('.endSub');
-    if(sub) sub.textContent=d.bossId==='tempestina'?'¡TEMPESTINA FUE DERROTADA!':d.bossId==='kronos'?'¡KRONOS FUE DETENIDO!':'¡EL INKBOSS FUE DESTRUIDO!';
+    if(sub) sub.textContent=d.bossId==='tempestina'?'¡TEMPESTINA FUE DERROTADA!':d.bossId==='kronos'?'¡KRONOS FUE DETENIDO!':d.bossId==='narrator'?'¡NARRATOR FUE REVELADO!':'¡EL INKBOSS FUE DESTRUIDO!';
     showScreen('winScreen');gameState='end';
   } else if(d.type==='returnIsland'||d.type==='goIsland'){
     gameState='overworld';startOverworld();
@@ -7534,19 +7554,27 @@ function mpDrawFromState(){
       kGears=s.kg?s.kg.map(g=>({cx:g.cx,cy:g.cy,r:g.r,angle:g.ang,speed:0,hp:g.hp,spiral:!!g.sp,orbitR:g.or})):[];
       drawKronos();
     }
-    else{
-      let prevPhase=bossPhase;
-      boss.x=s.boss.x;boss.y=s.boss.y;boss.hp=s.boss.hp;boss.maxHp=s.boss.maxHp;boss.bobOff=s.boss.bob;bossPhase=s.boss.ph;bossDefeated=!!s.boss.def;
-      if(bossPhase!==prevPhase)playMusic(bossPhase);
-      drawBoss();
-    }
-    // Narrator visual state sync
-    if(selectedBoss==='narrator'&&s.boss){
+    else if(selectedBoss==='narrator'){
+      // Sincronizar estado completo del Narrator para clientes
       nBoss.x=s.boss.x;nBoss.y=s.boss.y;nBoss.hp=s.boss.hp;nBoss.maxHp=s.boss.maxHp;nBoss.bobOff=s.boss.bob||0;
       let prevStage=nStage; nStage=s.boss.ph; nDefeated=!!s.boss.def; nInvT=s.boss.inv||0;
       nCurtain=s.boss.cph?{t:s.boss.ct,phase:s.boss.cph}:null;
       nSpot1=s.boss.sp1||null; nSpot2=s.boss.sp2||null;
       if(nStage!==prevStage) _syncNarratorMusic(nStage);
+      // Sincronizar tipo de sombra según etapa (determinístico, no requiere sync extra)
+      if(nStage===1)nShadowType='ink';
+      else if(nStage===2)nShadowType='temp';
+      else if(nStage===3)nShadowType='kronos';
+      // También limpiar warnings de rayos en stage 2 para el cliente
+      if(nStage!==2)tLightningWarnings=[];
+      drawNarratorCurtain();
+      drawNarrator();
+    }
+    else{
+      let prevPhase=bossPhase;
+      boss.x=s.boss.x;boss.y=s.boss.y;boss.hp=s.boss.hp;boss.maxHp=s.boss.maxHp;boss.bobOff=s.boss.bob;bossPhase=s.boss.ph;bossDefeated=!!s.boss.def;
+      if(bossPhase!==prevPhase)playMusic(bossPhase);
+      drawBoss();
     }
   }
   // Reconstruir miniones con todos los campos que drawMinions necesita
